@@ -92,7 +92,7 @@ public class RestaurantManagementApp {
                     break;
                 case 5:
                     System.out.print("Enter order ID: ");
-                    int orderId = scanner.nextInt();
+                    int orderId = scanner.nextInt(); 
                     scanner.nextLine();  // Consume newline
                     System.out.print("Enter new status (Pending, Completed, Delivered): ");
                     String status = scanner.nextLine();
@@ -128,7 +128,7 @@ public class RestaurantManagementApp {
                     if (billingTable != null && olist.containsKey(billingTable)) {
                         Order billingOrder = olist.get(billingTable);
                         double total = orderService.calculateOrderTotal(billingOrder);
-                        orderService.displayOrder(olist.get(billingOrder));
+                        orderService.displayOrder(billingOrder);
                         System.out.println("Total bill for Table #" + billingTableNumber + ": $" + total);
                     } else {
                         System.out.println("No order found for this table.");
