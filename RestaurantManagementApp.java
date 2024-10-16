@@ -1,10 +1,12 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import model.MenuItem;
 import model.Order;
+import model.Table;
 import service.MenuService;
 import service.OrderService;
 import service.TableService;
-
-import java.util.Scanner;
 
 public class RestaurantManagementApp {
     public static void main(String[] args) {
@@ -12,6 +14,7 @@ public class RestaurantManagementApp {
         MenuService menuService = new MenuService();
         OrderService orderService = new OrderService();
         TableService tableService = new TableService();
+        HashMap<Table, Order> olist = new HashMap<>();  // Store orders by table
 
         // Sample data
         menuService.addMenuItem(new MenuItem("Pasta", 10.99, "Main Course"));
@@ -30,6 +33,7 @@ public class RestaurantManagementApp {
             System.out.println("6. View Tables");
             System.out.println("7. Reserve Table");
             System.out.println("8. Release Table");
+            System.out.println("9. Generate Bill");
             System.out.println("0. Exit");
 
             System.out.print("Enter your choice: ");
@@ -52,23 +56,39 @@ public class RestaurantManagementApp {
                     System.out.println("Item added to menu.");
                     break;
                 case 3:
-                    Order order = orderService.createOrder();
-                    menuService.displayMenu();
-                    System.out.print("Enter item name to add to order: ");
-                    String itemName = scanner.nextLine();
-                    MenuItem item = menuService.getMenuItems().stream()
-                            .filter(i -> i.getName().equalsIgnoreCase(itemName))
-                            .findFirst()
-                            .orElse(null);
-                    if (item != null) {
-                        orderService.addItemToOrder(order, item);
-                        System.out.println("Item added to order.");
+                    System.out.print("Enter table number for the order: ");
+                    int tableNumber = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+                    Table table = tableService.findTableByNumber(tableNumber);
+
+                    if (table != null) {
+                        Order order = olist.getOrDefault(table, orderService.createOrder());
+                        menuService.displayMenu();
+                        System.out.print("Enter item name to add to order: ");
+                        String itemName = scanner.nextLine();
+                        MenuItem item = menuService.getMenuItems().stream()
+                                .filter(i -> i.getName().equalsIgnoreCase(itemName))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (item != null) {
+                            orderService.addItemToOrder(order, item);
+                            olist.put(table, order);
+                            System.out.println("Item added to order.");
+                        } else {
+                            System.out.println("Item not found in menu.");
+                        }
                     } else {
-                        System.out.println("Item not found in menu.");
+                        System.out.println("Table not found.");
                     }
                     break;
                 case 4:
-                    orderService.displayOrders();
+                    for(Map.Entry<Table,Order>i: olist.entrySet())
+                    {   
+                        System.out.println(i.getKey());
+                        orderService.displayOrder(i.getValue());
+                    }
+                    
                     break;
                 case 5:
                     System.out.print("Enter order ID: ");
@@ -98,6 +118,20 @@ public class RestaurantManagementApp {
                         System.out.println("Table #" + tableNumberToRelease + " is now available.");
                     } else {
                         System.out.println("Table #" + tableNumberToRelease + " is already available or does not exist.");
+                    }
+                    break;
+                case 9:
+                    System.out.print("Enter table number for billing: ");
+                    int billingTableNumber = scanner.nextInt();
+                    Table billingTable = tableService.findTableByNumber(billingTableNumber);
+
+                    if (billingTable != null && olist.containsKey(billingTable)) {
+                        Order billingOrder = olist.get(billingTable);
+                        double total = orderService.calculateOrderTotal(billingOrder);
+                        orderService.displayOrder(olist.get(billingOrder));
+                        System.out.println("Total bill for Table #" + billingTableNumber + ": $" + total);
+                    } else {
+                        System.out.println("No order found for this table.");
                     }
                     break;
                 case 0:

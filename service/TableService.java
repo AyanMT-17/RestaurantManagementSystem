@@ -1,8 +1,8 @@
 package service;
 
-import model.Table;
 import java.util.ArrayList;
 import java.util.List;
+import model.Table;
 
 public class TableService {
     private List<Table> tables = new ArrayList<>();
@@ -51,4 +51,8 @@ public class TableService {
             System.out.println(table);
         }
     }
-}
+    public void takeorders() {
+        
+        }
+    }
+

@@ -1,9 +1,9 @@
 package service;
 
-import model.MenuItem;
-import model.Order;
 import java.util.ArrayList;
 import java.util.List;
+import model.MenuItem;
+import model.Order;
 
 public class OrderService {
     private List<Order> orders = new ArrayList<>();
@@ -22,11 +22,13 @@ public class OrderService {
         return orders;
     }
 
-    public void displayOrders() {
-        System.out.println("Orders:");
-        for (Order order : orders) {
-            System.out.println(order);
+    public void displayOrder(Order order) {
+        System.out.println("Order ID: " + order.getOrderId());
+        System.out.println("Items:");
+        for (MenuItem item : order.getItems()) {
+            System.out.println(" - " + item.getName() + ": $" + item.getPrice());
         }
+        System.out.println("Total: $" + calculateOrderTotal(order));
     }
 
     public void updateOrderStatus(int orderId, String status) {
@@ -36,4 +38,14 @@ public class OrderService {
             }
         }
     }
+
+
+    public double calculateOrderTotal(Order order) {
+        double total = 0.0;
+        for (MenuItem item : order.getItems()) {  // Assuming getItems() returns a List<MenuItem>
+            total += item.getPrice();
+        }
+        return total;
+    }
 }
+
