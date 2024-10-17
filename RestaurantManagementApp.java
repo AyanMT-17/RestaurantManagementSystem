@@ -1,9 +1,11 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import model.Customer;
 import model.MenuItem;
 import model.Order;
 import model.Table;
+import service.EmployeeService;
 import service.MenuService;
 import service.OrderService;
 import service.TableService;
@@ -14,7 +16,10 @@ public class RestaurantManagementApp {
         MenuService menuService = new MenuService();
         OrderService orderService = new OrderService();
         TableService tableService = new TableService();
+        
+        EmployeeService employeeService = new EmployeeService(); // Initialize EmployeeService
         HashMap<Table, Order> olist = new HashMap<>();  // Store orders by table
+        HashMap<Integer,Customer> tlist=new HashMap<>(); // Store table by customer name
 
         // Sample data
         menuService.addMenuItem(new MenuItem("Pasta", 10.99, "Main Course"));
@@ -34,6 +39,8 @@ public class RestaurantManagementApp {
             System.out.println("7. Reserve Table");
             System.out.println("8. Release Table");
             System.out.println("9. Generate Bill");
+            System.out.println("10. Add Employee");
+            System.out.println("11. Display All Employee");
             System.out.println("0. Exit");
 
             System.out.print("Enter your choice: ");
@@ -83,11 +90,16 @@ public class RestaurantManagementApp {
                     }
                     break;
                 case 4:
+                    boolean f=false;
                     for(Map.Entry<Table,Order>i: olist.entrySet())
                     {   
+                        if(i.getKey()!=null)
+                        {f=true;}
                         System.out.println(i.getKey());
                         orderService.displayOrder(i.getValue());
                     }
+                    if(f==false)
+                    {System.out.println("No orders to be displayed");}
                     
                     break;
                 case 5:
@@ -103,8 +115,15 @@ public class RestaurantManagementApp {
                     tableService.displayTables();
                     break;
                 case 7:
+                    
+                    System.out.print("Enter name of customer: ");
+                    String name1=scanner.nextLine();
+                    System.out.print("Enter phone number of customer: ");
+                    String num=scanner.nextLine();
+                    Customer customer=new Customer(name1, num);
                     System.out.print("Enter table number to reserve: ");
                     int tableNumberToReserve = scanner.nextInt();
+                    tlist.put(tableNumberToReserve,customer);
                     if (tableService.reserveTable(tableNumberToReserve)) {
                         System.out.println("Table #" + tableNumberToReserve + " reserved.");
                     } else {
@@ -119,6 +138,7 @@ public class RestaurantManagementApp {
                     } else {
                         System.out.println("Table #" + tableNumberToRelease + " is already available or does not exist.");
                     }
+                    tlist.remove(tableNumberToRelease);
                     break;
                 case 9:
                     System.out.print("Enter table number for billing: ");
@@ -133,6 +153,22 @@ public class RestaurantManagementApp {
                     } else {
                         System.out.println("No order found for this table.");
                     }
+                    olist.remove(billingTable);
+                    break;
+                case 10:
+                    System.out.print("Enter Employee ID: ");
+                    int employeeId = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+                    System.out.print("Enter Employee Name: ");
+                    String employeeName = scanner.nextLine();
+                    System.out.print("Enter Employee Role: ");
+                    String employeeRole = scanner.nextLine();
+                    employeeService.addEmployee(employeeId, employeeName, employeeRole);
+                    System.out.println("Employee added.");
+                    break;
+                case 11:
+                    System.out.println("All Employees:");
+                    employeeService.getAllEmployees().forEach(System.out::println);
                     break;
                 case 0:
                     System.out.println("Exiting...");

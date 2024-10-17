@@ -21,7 +21,6 @@ public class Order {
         items.add(item);
         totalPrice += item.getPrice();
     }
-
     public int getOrderId() { return orderId; }
     public List<MenuItem> getItems() { return items; }
     public double getTotalPrice() { return totalPrice; }
